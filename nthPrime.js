@@ -19,7 +19,7 @@ function nthPrime(nPlusOne) {
 }
 
 function isPrime(num, prevPrimes) {
-  for(let i = 0; i < Math.sqrt(prevPrimes.length); i++) {
+  for(let i = 0; prevPrimes[i] <= Math.sqrt(num); i++) {
     if(num % prevPrimes[i] === 0) {
       return false;
     }
