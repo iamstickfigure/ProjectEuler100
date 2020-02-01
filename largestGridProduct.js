@@ -1,8 +1,61 @@
-// WIP
-
 function largestGridProduct(arr) {
-  // Good luck!
-  return arr;
+  const n = 4;
+  let maxProd = 0;
+  let prod = 0;
+
+  for(let row = 0; row < arr.length; row++) {
+    const arrLikeH = new HorizontalArrLike(arr, row);
+
+    prod = largestProductInSeries(arrLikeH, n);
+
+    if(prod > maxProd) {
+      maxProd = prod;
+    }
+    
+    if(row <= arr.length - n) {
+      const arrLikeD1 = new DiagonalArrLike(arr, row, 0);
+      prod = largestProductInSeries(arrLikeD1, n);
+
+      if(prod > maxProd) {
+        maxProd = prod;
+      }
+
+      const arrLikeD2 = new DiagonalArrLike(arr, row + n - 1, 0, -1);
+      prod = largestProductInSeries(arrLikeD2, n);
+
+      if(prod > maxProd) {
+        maxProd = prod;
+      }
+    }
+  }
+
+  for(let col = 0; col < arr[0].length; col++) {
+    const arrLikeV = new VerticalArrLike(arr, col);
+
+    prod = largestProductInSeries(arrLikeV, n);
+
+    if(prod > maxProd) {
+      maxProd = prod;
+    }
+    
+    if(col > 0 && col <= arr[0].length - n) {
+      const arrLikeD1 = new DiagonalArrLike(arr, 0, col);
+      prod = largestProductInSeries(arrLikeD1, n);
+
+      if(prod > maxProd) {
+        maxProd = prod;
+      }
+
+      const arrLikeD2 = new DiagonalArrLike(arr, arr.length - 1, col, -1);
+      prod = largestProductInSeries(arrLikeD2, n);
+
+      if(prod > maxProd) {
+        maxProd = prod;
+      }
+    }
+  }
+
+  return maxProd;
 }
 
 class HorizontalArrLike {
@@ -43,31 +96,33 @@ class VerticalArrLike {
   }
 }
 
-class DiagonalLeftArrLike {
-  constructor(arr, iStart, jStart) {
+class DiagonalArrLike {
+  constructor(arr, rowStart, colStart, direction = 1) {
     this.arr = arr;
-    this.rowStart = iStart;
-    this.colStart = jStart;
+    this.rowStart = rowStart;
+    this.colStart = colStart;
+    this.direction = direction;
   }
 
   inBounds(i) {
     const {arr} = this;
+    const [row, col] = this.getPos(i);
 
-    return 0 <= i && i < arr.length;
+    return 0 <= row && row < arr.length &&
+      0 <= col && col < arr[row].length;
   }
 
-  rowPos(i) {
-    return this.rowStart + i;
-  }
-
-  colPos(i) {
-    return this.colStart + i;
+  getPos(i) {
+    // direction = 1 is south east
+    // direction = -1 is north east
+    return [this.rowStart + i * this.direction, this.colStart + i];
   }
 
   nth(i) {
-    const {col, arr} = this;
+    const {arr} = this;
+    const [row, col] = this.getPos(i);
 
-    return arr[i][col];
+    return arr[row][col];
   }
 }
 
@@ -105,6 +160,8 @@ function largestProductInSeries(arrLike, n) {
       // maxProdStart = prodStart;
     }
   }
+
+  return maxProd;
 }
 
 // Modified from largestProductinaSeries.js, but uses an "array-like" object instead of an array
@@ -161,3 +218,4 @@ const testGrid = [
 ];
 
 console.log(largestGridProduct(testGrid));
+console.log(largestGridProduct(grid));
