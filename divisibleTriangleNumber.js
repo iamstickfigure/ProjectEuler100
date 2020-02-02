@@ -5,9 +5,9 @@ function divisibleTriangleNumber(n) {
   for(let numDiv = 0, i = 1; numDiv <= n; i++) {
     tri = triangular(i);
 
-    factored[tri] = factorize(tri, factored);
+    factorize(tri, factored);
 
-    numDiv = numDivisors(factored[tri]);
+    numDiv = numDivisors(countFactors(tri, factored));
     // console.log(tri + " " + numDiv + " " + JSON.stringify(factored[tri]));
   }
 
@@ -28,28 +28,45 @@ function numDivisors(factors) {
   return volume;
 }
 
-function factorize(n, factored) {
+function countFactors(n, factored) {
   let factors = {};
+
+  for(let num = n; num !== 1 && factored[num];) {
+    const op = factored[num];
+
+    if(factors[op.div]) {
+      factors[op.div] += 1;
+    }
+    else {
+      factors[op.div] = 1;
+    }
+
+    num = op.quo;
+  }
+
+  return factors;
+}
+
+function factorize(n, factored) {
   let num = n;
 
   const tryDiv = pp => {
     if(num % pp === 0) {
-      num /= pp;
+      factored[num] = {
+        num: num,
+        div: pp,
+        quo: num / pp
+      };
 
-      if(factors[pp]) {
-        factors[pp]++;
-      }
-      else {
-        factors[pp] = 1;
-      }
+      num = factored[num].quo;
 
       return true;
     }
 
     return false;
   }
-
-  let i = 0
+  
+  let i = 0;
   let [pp1, pp2] = potentialPrimes(i);
 
   while(i <= n) {
@@ -58,7 +75,7 @@ function factorize(n, factored) {
         break;
       }
       else if(factored[num]) {
-        return combineFactors(factors, factored[num]);
+        break;
       }
 
       continue;
@@ -69,7 +86,7 @@ function factorize(n, factored) {
         break;
       }
       else if(factored[num]) {
-        return combineFactors(factors, factored[num]);
+        break;
       }
 
       continue;
@@ -77,23 +94,6 @@ function factorize(n, factored) {
 
     [pp1, pp2] = potentialPrimes(++i);
   }
-
-  return factors;
-}
-
-function combineFactors(f1, f2) {
-  // f1 will be mutated
-
-  for(let factor in f2) {
-    if(f1[factor]) {
-      f1[factor] += f2[factor];
-    }
-    else {
-      f1[factor] = f2[factor];
-    }
-  }
-
-  return f1;
 }
 
 function potentialPrimes(i) {
